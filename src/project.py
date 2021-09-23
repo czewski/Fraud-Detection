@@ -2,10 +2,12 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn import pipeline
-from sklearn import tree
+
+from sklearn import pipeline, tree
 from sklearn.model_selection import train_test_split
-from feature_engine.encoding import OneHotEncoder
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+#from feature_engine.encoding import 
+
 import seaborn as sns
 
 #%%
@@ -16,6 +18,7 @@ df.head()
 #df.info()
 print(df['isFraud'].value_counts().index)
 print(df['isFraud'].value_counts())
+
 #%% AED
 #plot de porcentagem de fraudes
 ax = sns.countplot(x='isFraud',data=df)
@@ -31,17 +34,36 @@ plt.show()
 
 #%%
 features_num = ['amount','oldbalanceOrg','oldbalanceDest', 'newbalanceDest','newbalanceOrig','isFlaggedFraud']
-features_cat = ['type','nameDest','nameOrig']
-
+features_cat = ['type']
+#ignored 'nameDest','nameOrig'
 target       = 'isFraud'
 
 df[features_cat] = df[features_cat].astype(str)
 
-#%% encoder
-onehot1 = OneHotEncoder(variables=features_cat)
+#%% encode and PIPELINE
+#aplicar log no amount
+
+le = LabelEncoder()
+df[features_cat] = le.fit_transform(df[features_cat])
+df.head()
+#%%
+#new = new.reshape(-1,1)
+#hot = OneHotEncoder(sparse=False)
+#df[features_cat] = hot.fit_transform(df[features_cat])
+
+onehot_1 = OneHotEncoder()
+df.head()
+#%%
+df.head()
+#onehot1 = OneHotEncoder(variables=features_cat)
+
+model = pipeline.Pipeline([ ('label-enc', label_enc),
+                            ('one-hot1', onehot_1)
+    ])
+
 
 #%% Separando treino e validação
-x = df.drop(['isFraud', 'isFlaggedFraud'], axis=1)
+x = df.drop(['isFraud', 'isFlaggedFraud','nameDest','nameOrig'], axis=1)
 y = df['isFraud']
 x_train, x_validation, y_train, y_validation = train_test_split(x, y, train_size=0.7, random_state=1234)
 
